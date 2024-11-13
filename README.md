@@ -1,7 +1,7 @@
 ﻿# DWES_Practice
  <div align="center">
   <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=Php" />
+    <img src="https://skillicons.dev/icons?i=php" />
   </a>
 </div>
 <h1>Descripción del Repositorio:</h1>
