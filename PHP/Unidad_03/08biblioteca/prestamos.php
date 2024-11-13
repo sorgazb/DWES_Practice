@@ -7,7 +7,7 @@ require_once 'controlador.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biblioteca</title>
+    <title>Prestamos Biblioteca</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </head>
@@ -40,7 +40,7 @@ require_once 'controlador.php';
             ?>
                 <form action="" method="post" class="row g-3">
                     <div class="col-md-3">
-                        <label for="socio" class="form-label">Socio</label>
+                        <label for="socio" class="form-label">Socio:</label>
                         <select class="form-select" name="socio" id="socio">
                             <?php
                             foreach ($socios as $s) {
@@ -51,7 +51,7 @@ require_once 'controlador.php';
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label for="libro" class="form-label">Libro</label>
+                        <label for="libro" class="form-label">Libro:</label>
                         <select class="form-select" name="libro" id="libro">
                             <?php
                             foreach ($libros as $l) {
@@ -62,8 +62,8 @@ require_once 'controlador.php';
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Acción</label><br />
-                        <button class="btn btn-outline-secondary" type="submit" id="pCrear" name="pCrear">+</button>
+                        <label class="form-label">Acción:</label><br />
+                        <button class="btn btn-outline-success" type="submit" id="pCrear" name="pCrear">Crear Prestamo</button>
                     </div>
                 </form>
             <?php
@@ -74,7 +74,7 @@ require_once 'controlador.php';
             <br />
             <!-- mostrar préstamos -->
             <form action="" method="post">
-                <table class="table">
+                <table class="table table-striped">
                     <thead>
                         <tr>
                             <th>Id</th>
@@ -112,7 +112,7 @@ require_once 'controlador.php';
                             if($_SESSION['usuario']->getTipo()=='A'){
                                 echo '<td>';
                                 echo ($p->getFechaRD() == null ?
-                                    '<button class="btn btn-outline-secondary" type="submit" name="pDevolver" 
+                                    '<button class="btn btn-outline-danger" type="submit" name="pDevolver" 
                                     value="' . $p->getId() . '">Devolver</button>'
                                     : '');
                                 echo '</td>';

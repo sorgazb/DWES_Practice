@@ -41,18 +41,19 @@ if(isset($_POST['entrar'])){
 <body>
     <div class="container">
 
-    <p class="display-2">Biblioteca - Login</p>
+    <p class="display-2">Login</p>
         <form action="" method="post">
             <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Usuario</label>
-                <input type="text" name="usuario" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"/>
+                <label for="exampleInputEmail1" class="form-label">Usuario:</label>
+                <input type="text" name="usuario" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Introduce el nombre de usuario"/>
             </div>
             <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label">Password</label>
-                <input type="password" name="ps" class="form-control" id="exampleInputPassword1">
+                <label for="exampleInputPassword1" class="form-label">Contraseña:</label>
+                <input type="password" name="ps" class="form-control" id="exampleInputPassword1" placeholder="Introduce la contraseña">
             </div>
         
             <button type="submit" class="btn btn-primary" name="entrar">Entrar</button>
+            <button type="submit" class="btn btn-danger" name="entrar">Cancelar</button>
         </form>
         <?php
         if(isset($error)){

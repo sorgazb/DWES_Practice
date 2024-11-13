@@ -1,5 +1,6 @@
 <?php
 require_once 'Modelo.php';
+require_once 'Correo.php';
 
 function generarInput($tipo,$nombre,$valor,$boton,$valorBoton){
     if(isset($_POST[$boton]) && $_POST[$boton]==$valorBoton){
@@ -9,15 +10,15 @@ function generarInput($tipo,$nombre,$valor,$boton,$valorBoton){
         return $valor;
     }
 }
-function generarBotones($nombreB1, $nombreB2, $textoB1, $textoB2, $boton, $valorBoton, $tienePrestamos){
+function generarBotones($nombreB1, $nombreB2, $textoB1, $textoB2, $boton, $valorBoton, $tienePrestamos,$colorBtn){
     if(isset($_POST[$boton]) && $_POST[$boton]==$valorBoton){
-        return '<button class="btn btn-outline-secondary" type="submit" name="'.
+        return '<button class="btn btn-outline-'.$colorBtn.'" type="submit" name="'.
         $nombreB2.'" value="'.$valorBoton.'">'.$textoB2.'</button>'; 
     }
     else{
         if($nombreB1=='sBSocio' and $tienePrestamos){
             //Generar botón con ventana de aviso
-            $htmlBoton = '<button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#Modal'.
+            $htmlBoton = '<button class="btn btn-outline-'.$colorBtn.'" data-bs-toggle="modal" data-bs-target="#Modal'.
                     $valorBoton.'" type="button" name="'.
                     $nombreB1.'" value="'.$valorBoton.'">'.$textoB1.'</button>';
             $htmlVentana=generarModal('El socio tiene préstamos',
@@ -26,7 +27,7 @@ function generarBotones($nombreB1, $nombreB2, $textoB1, $textoB2, $boton, $valor
             return $htmlBoton.$htmlVentana;
         }
         else{
-            return '<button class="btn btn-outline-secondary" type="submit" name="'.
+            return '<button class="btn btn-outline-'.$colorBtn.'" type="submit" name="'.
             $nombreB1.'" value="'.$valorBoton.'">'.$textoB1.'</button>';             
         }
     }
@@ -141,6 +142,31 @@ if (isset($_POST['sCrearSocio']) and $_SESSION['usuario']->getTipo() == 'A') {
                 $s = new Socio(0, $_POST['nombre'], '', $_POST['email'], $_POST['dni']);
                 if ($bd->crearUsuario($u, $s)) {
                     $mensaje = 'Usuario socio creado';
+                    // Enviar mensaje de correo electronico:
+
+                    $email = new Correo();
+                    if($email->getCa()!=null){
+                        $textoHTML='<h1>Hola '.$s->getNombre().', bienvenido a la Biblioteca Sergio Orgaz.</h1>'.
+                        '<p>Tus credenciales de acceso son: <br>'.
+                        'Usuario: '.$s->getUs().'<br>'
+                        .'Contraseña: '.$s->getUs().'</p>'.
+                        '<h3>No olvides cambiar tu contraseña en el primer acceso.</h3>';
+
+                        $textoNoHTML='Hola'.$s->getNombre().', bienvenido a la Biblioteca Sergio Orgaz.\n'.
+                        'Tus credenciales de acceso son:\n'.
+                        'Usuario: '.$s->getUs().'\n'
+                        .'Contraseña: '.$s->getUs().'\n'
+                        .'No olvides cambiar tu contraseña en el primer acceso.';
+
+                        if($email->enviarCorreo('Creedenciales acceso Biblioteca PHP',$s,$textoHTML,$textoNoHTML)){
+                            $mensaje.='. Se enviado email de credenciales de acceso';
+                        }else{
+                            $error='No se ha enviado el email con las credenciales del usuario';
+                        }
+
+                    }else{
+                        $error='No se enviado email de credenciales de acceso';
+                    }
                     //Una vez que se crea el socio se dejan de recordar datos
                     unset($_POST['dni']);
                     unset($_POST['tipo']);
@@ -229,5 +255,52 @@ if ((isset($_POST['sBSocio']) or isset($_POST['sDeleteSocio'])) and $_SESSION['u
     }
     else{
         $error='Error, no existe el usuario';
+    }
+}
+
+if(isset($_POST['sGLibro']) and $_SESSION['usuario']->getTipo() == 'A'){
+        //Obtener los datos antiguos del usuario
+        $l=$bd->obtenerLibro($_POST['sGLibro']);
+        if(empty($_POST['titulo'])){
+            $error = 'Error, el titulo no puede estar vacío';
+        }
+        if(!isset($error)){
+            //Modificamos datos
+            $l->setTitulo($_POST['titulo']);
+            $l->setAutor($_POST['autor']);
+            $l->setEjemplares($_POST['ejemplares']);
+            
+            if($bd->modificarLibro($l,$_POST['sGLibro'])){
+                $mensaje='Libro modificado';
+            }
+            else{
+                $error='Error al modificar el libro';
+            }
+        }
+}
+
+if ((isset($_POST['sBLibro'])) and $_SESSION['usuario']->getTipo() == 'A') {
+    if(isset($_POST['sBLibro'])){
+        $id=$_POST['sBLibro'];
+    }
+    $l=$bd->obtenerLibro($id);
+    if($l!=null){
+            //Comprobar si el usuario tiene préstamos
+            $prestamos=$bd->obtenerPrestamosLibro($l);
+            if(sizeof($prestamos)>0){
+                $error = "Ya tiene prestamos ese libro";
+            }
+            else{
+                //Borrar
+                if($bd->borrarLibro($l)){
+                    $mensaje='Libro borrado';
+                }  
+                else{
+                    $error='Se ha producido un error al borrar el libro';
+                }
+            }
+    }
+    else{
+        $error='Error, no existe el libro';
     }
 }

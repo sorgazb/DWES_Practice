@@ -26,8 +26,8 @@ if (basename($_SERVER['PHP_SELF']) == 'menu.php') {
 
             </ul>
             <form action="" method="post" class="d-flex">
-                <span class="navbar-text"><?php echo $_SESSION['usuario']->getId(); ?></span>
-                <button class="btn btn-outline-secondary" type="submit" name="cerrar">Salir</button>
+                <span class="navbar-text" style="padding: 5px;"><?php echo $_SESSION['usuario']->getId(); ?></span>
+                <button class="btn btn-danger" type="submit" name="cerrar">Salir</button>
             </form>
         </div>
     </div>

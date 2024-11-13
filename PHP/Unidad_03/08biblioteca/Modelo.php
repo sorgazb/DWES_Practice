@@ -309,6 +309,33 @@ class Modelo{
         }
         return $resultado;
     }
+
+    public function obtenerPrestamosLibro($l){
+        $resultado = array();
+        try {
+            //Seleccionamos los préstamos de un socio
+            $consulta = $this->conexion->prepare('SELECT * from prestamos as p
+                            inner join socios as s on p.socio=s.id 
+                            inner join libros as l on p.libro=l.id 
+                             where l.id = ?');
+            $params=array($l->getId());
+            if($consulta->execute($params)){
+                while($fila=$consulta->fetch()){
+                    $resultado[]= new Prestamo($fila[0],
+                            new Socio($fila['socio'],$fila['nombre'],$fila['fechaSancion'],$fila['email'],$fila['us']),
+                            new Libro($fila['libro'],$fila['titulo'],$fila['ejemplares'],$fila['autor']),
+                            $fila['fechaP'],
+                            $fila['fechaD'],
+                            $fila['fechaRD']);
+                }
+            }
+            
+        } catch (\Throwable $th) {
+            echo $th->getMessage();
+        }
+        return $resultado;
+    }
+
     public function crearLibro($l){
         $resultado=0;
         try {
@@ -494,6 +521,64 @@ class Modelo{
         catch (PDOException $th) {
             //throw $th;
             $this->conexion->rollBack();
+            echo $th->getMessage();
+        }        
+        catch (\Throwable $th) {
+            //throw $th;
+            echo $th->getMessage();
+        }
+
+        return $resultado;
+    }
+
+    function modificarLibro($l,$id){
+        $resultado=false;
+        try {
+            //Modficar usuario
+            $consulta=$this->conexion->prepare('UPDATE libros set titulo=?,autor=?,ejemplares=? where id = ?');
+            $params=array($l->getTitulo(),$l->getAutor(),$l->getEjemplares(),$id); 
+            if($consulta->execute($params)){
+                $resultado=true;
+                }
+            }
+        catch (\PDOException $e) {
+            echo $e->getMessage();
+        }
+        catch (\Throwable $th) {
+            echo $th->getMessage();
+        }
+        return $resultado;
+    }
+
+    function obtenerLibro($id){
+        $resultado=null;
+        try {
+            $consulta=$this->conexion->prepare('SELECT * from libros where id=?');
+            $params=array($id);
+            if($consulta->execute($params)){
+                if($fila=$consulta->fetch()){
+                    $resultado=new Libro($fila['id'],$fila['titulo'],$fila['autor'],$fila['ejemplares']);
+                }
+            }
+        } catch (\Throwable $th) {
+            echo $th->getMessage();
+        }
+
+        return $resultado;
+    }
+
+    function borrarLibro($l){
+        $resultado = false;
+
+        try {
+            //Borrar Socio
+            $consulta = $this->conexion->prepare('DELETE from libros where id=?');
+            $params=array($l->getId());
+            if($consulta->execute($params)){
+                $resultado = true;
+            }
+        } 
+        catch (PDOException $th) {
             echo $th->getMessage();
         }        
         catch (\Throwable $th) {
