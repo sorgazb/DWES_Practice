@@ -53,7 +53,7 @@ if(isset($_POST['entrar'])){
             </div>
         
             <button type="submit" class="btn btn-primary" name="entrar">Entrar</button>
-            <button type="submit" class="btn btn-danger" name="entrar">Cancelar</button>
+            <button type="submit" class="btn btn-danger" name="salir">Cancelar</button>
         </form>
         <?php
         if(isset($error)){

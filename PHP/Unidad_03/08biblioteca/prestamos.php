@@ -68,6 +68,13 @@ require_once 'controlador.php';
                 </form>
             <?php
             }
+            else{
+                // Pintar estadisticas de socio
+                $datos = $bd->estadistica($bd->obtenerSocioDni($_SESSION['usuario']->getId())->getId());
+                foreach($datos as $d){
+                    echo '<p>'.$d[0].'-'.$d[1].'-'.$d[2].'</p>';
+                }
+            }
             ?>
         </div>
         <div>
