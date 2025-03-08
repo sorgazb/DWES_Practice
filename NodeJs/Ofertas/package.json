@@ -1,0 +1,23 @@
+{
+  "name": "ofertas",
+  "version": "1.0.0",
+  "description": "Api rest bd ofertas",
+  "main": "index.js",
+  "scripts": {
+    "inicio": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sergio Orgaz Bravo",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "connect-multiparty": "^2.2.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.12.0",
+    "nodemon": "^3.1.9",
+    "sequelize": "^6.37.5"
+  }
+}
