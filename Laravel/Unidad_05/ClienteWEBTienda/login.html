@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <script src="axios/dist/axios.min.js"></script>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: #e0e0e0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+form {
+    background-color: #1e1e1e;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+    color: #e0e0e0;
+    box-sizing: border-box;  /* Asegura que el padding no afecte al ancho del formulario */
+}
+
+h1 {
+    text-align: center;
+    color: #f0f0f0;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #bb86fc;
+}
+
+input {
+    width: 100%;
+    padding: 12px;  /* Aumentamos el padding para que el contenido tenga espacio dentro del input */
+    margin-bottom: 15px;
+    border: 1px solid #555;
+    border-radius: 6px;
+    background-color: #333;
+    color: #e0e0e0;
+    font-size: 16px;
+    transition: border-color 0.3s, background-color 0.3s;
+    box-sizing: border-box; /* Asegura que el padding se incluya dentro del ancho total del input */
+}
+
+input:focus {
+    border-color: #6200ea;
+    background-color: #444;
+    outline: none;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #6200ea;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    box-sizing: border-box;
+}
+
+button:hover {
+    background-color: #3700b3;
+}
+
+a {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #bb86fc;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+    </style>
+</head>
+<body>
+    <div>
+    <form action="">
+        <h1>Iniciar Sesión</h1>
+        <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="email@email.com">
+        </div>
+        <div>
+            <label for="ps">Contraseña</label>
+            <input type="password" id="ps">
+        </div>
+        <button type="button" onclick="login()">Iniciar sesión</button>
+    </form>
+    
+        <a href="registro.html">Ir a registro</a>
+    </div>
+
+    <script>
+        function login(){
+            const url = 'http://localhost/DWES-DAW/Laravel/Unidad_05/APITienda/public/api/login'
+            const datos ={
+                email:document.getElementById('email').value,
+                ps:document.getElementById('ps').value
+            }
+            axios.post(url,datos)
+            .then(response =>{
+                const token = response.data.token
+                const us = response.data.nombreUS
+                console.log(response)
+                localStorage.setItem('token', token)
+                localStorage.setItem('usuario', us)
+                // Redirigir a tienda
+                window.location.href = 'tienda.html'
+            })
+            .catch(error => {
+                alert('Error')
+            })
+        }
+    </script>
+</body>
+</html>

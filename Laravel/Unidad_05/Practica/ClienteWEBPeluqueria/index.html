@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peluqueria</title>
+    <script src="axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Cliente WEB Peluqueria</h1>
+
+    <h2>Crear Cita Nueva</h2>
+    <div>
+        <form>
+            <label for="cliente">Introduce el Nombre de Cliente:</label>
+            <input type="text" name="cliente" id="cliente">
+            <br>
+            <label for="fecha">Selecciona Fecha:</label>
+            <input type="date" name="fecha" id="fecha">
+            <br>
+            <label for="hora">Selecciona Hora:</label>
+            <input type="time" name="hora" id="hora">
+            <br>
+            <button type="button" class="btn btn-success" onclick="crearCita()">Crear Cita</button>
+        </form>
+    </div>
+
+    <h2>Lista de Citas</h2>
+    <table name="tablaCitas" id="tablaCitas" border="1px">
+    </table>
+
+    <div>
+        <h2>Detalles Cita</h2>
+        <table name="tablaDetalles" id="tablaDetalles" border="1px">
+        </table>
+        <h2>Servicios Disponibles</h2>
+        <select name="servicios" id="servicios"></select>
+    </div>
+
+    <script>
+        window.onload = cargarCitas()
+        window.onload = cargarServicios()
+        function cargarCitas(){
+            const url = 'http://localhost/DWES-DAW/Laravel/Unidad_05/Practica/APIPeluqueria/public/api/cita'
+            axios.get(url)
+            .then(
+                response => {
+                    const citas = response.data.data
+                    const tabla = document.getElementById('tablaCitas')
+                    tabla.innerHTML = '<tr><th>ID</th><th>Cliente</th><th>Fecha</th><th>Hora</th><th>Finalizada</th><th>Precio</th><th>Acciones</th></tr>'
+                    citas.forEach(cita => {
+                        const fila = document.createElement('tr')
+                        fila.innerHTML = `<td>${cita.id}</td>
+                        <td>${cita.cliente}</td>
+                        <td>${cita.fecha}</td>
+                        <td>${cita.hora}</td>
+                        <td>${cita.finalizada}</td>
+                        <td>${cita.precio}</td>
+                        <td><button type="button" onclick="obtenerServicios(${cita.id})" >Consultar Servicios</button><button type="button" onclick="finalizarCita(${cita.id})" >Finalizar Cita</button><button type="button" onclick="borrarCita(${cita.id})" >Borrar Cita</button></td>`
+                        tabla.appendChild(fila)
+                    });
+                }
+            )
+            .catch(error => {
+                console.error(error.response.data)
+                alert(`Error:${error.response.data}`)
+            })
+        }
+
+        function crearCita(){
+            const url = 'http://localhost/DWES-DAW/Laravel/Unidad_05/Practica/APIPeluqueria/public/api/cita'
+            if(document.getElementById('cliente').value == '' || document.getElementById('fecha').value == '' || document.getElementById('hora').value == ''){
+                alert('Debes rellenar todos los campos')
+            }else{
+                const datos = {
+                    cliente : document.getElementById('cliente').value,
+                    fecha : document.getElementById('fecha').value,
+                    hora : document.getElementById('hora').value
+                }
+                axios.post(url,datos)
+                .then(
+                    response => {
+                        alert(`Cita creada`)
+                        cargarCitas()
+                        document.querySelector('form').style.display = 'none'
+                        document.getElementById('cliente').value = ''
+                        document.getElementById('fecha').value = ''   
+                        document.getElementById('hora').value = ''
+                    }
+                )
+                .catch(error => {
+                    console.error(error.response.data)
+                    alert(`Error:${error.response.data}`)
+                })
+            }
+        }
+
+        function obtenerServicios(id){
+            const url = 'http://localhost/DWES-DAW/Laravel/Unidad_05/Practica/APIPeluqueria/public/api/detalleCita/'+id
+            axios.get(url)
+            .then(
+                response => {
+                    const detalles = response.data.data
+                    const tabla = document.getElementById('tablaDetalles')
+                    tabla.innerHTML = '<tr><th>ID</th><th>Servicio</th><th>Precio</th><th>Acciones</th></tr>'
+                    detalles.forEach(detalle => {
+                        const fila = document.createElement('tr')
+                        fila.innerHTML = `<td>${detalle.id}</td>
+                        <td>${detalle.servicio}</td>
+                        <td>${detalle.precio}</td>
+                        <td><button type="button" onclick="borrarDetalle(${detalle.id},${id})" >Borrar Detalle</button><button type="button" onclick="aniadirServicio(${id})">Añadir Servicio</button></td>`
+                        tabla.appendChild(fila)
+                    });
+                }
+            )
+            .catch(error => {
+                console.error(error.response.data)
+                alert(`Error:${error.response.data}`)
+            })
+
+        }
+
+        function borrarDetalle(id, idCita){
+            const url = 'http://localhost/DWES-DAW/Laravel/Unidad_05/Practica/APIPeluqueria/public/api/detalleCita/'+id
+            axios.delete(url)
+            .then(
+                response => {
+                    alert(`Detalle borrado`)
+                    cargarCitas()
+                    obtenerServicios(idCita)
+                }
+            )
+            .catch(error => {
+                    console.error(error.response.data)
+                    alert(`Error:${error.response.data}`)
+            })
+        }
+
+        function finalizarCita(id){
+            const url = 'http://localhost/DWES-DAW/Laravel/Unidad_05/Practica/APIPeluqueria/public/api/cita/'+id
+            axios.put(url)
+            .then(
+                response => {
+                    alert(`Cita finalizada`)
+                    cargarCitas()
+                }
+            )
+            .catch(error => {
+                console.error(error.response.data)
+                alert(`Error:${error.response.data}`)
+            })
+
+        }
+
+        function borrarCita(id){
+            const url = 'http://localhost/DWES-DAW/Laravel/Unidad_05/Practica/APIPeluqueria/public/api/cita/'+id
+            axios.delete(url)
+            .then(
+                response => {
+                    alert(`Cita borrada`)
+                    cargarCitas()
+                }
+            )
+            .catch(error => {
+                console.error(error.response.data)
+                alert(`Error:${error.response.data}`)
+            })
+
+        }
+
+        function cargarServicios(){
+            const url = 'http://localhost/DWES-DAW/Laravel/Unidad_05/Practica/APIPeluqueria/public/api/servicio'
+            axios.get(url)
+            .then(
+                response => {
+                    const servicios = response.data
+                    console.log(servicios)
+                    const selectorServicios = document.getElementById('servicios')
+                    servicios.forEach(servicio => {
+                        const opcion = document.createElement('option')
+                        console.log(servicio)
+                        opcion.value = servicio.id
+                        console.log(opcion.value)
+                        opcion.textContent = servicio.descripcion
+                        console.log(opcion.textContent)
+                        selectorServicios.appendChild(opcion)
+                    });
+                }
+            )
+            .catch(error => {
+                console.error(error.response)
+                alert(`Error:${error.response}`)
+            })
+        }
+
+        function aniadirServicio(id){
+            const url = 'http://localhost/DWES-DAW/Laravel/Unidad_05/Practica/APIPeluqueria/public/api/detalleCita'
+            if(document.getElementById('servicios').value == ''){
+                alert('Debes elegir un servicio')
+            }else{
+                const datos = {
+                    cita_id : id,
+                    servicio_id : document.getElementById('servicios').value
+                }
+                console.log(datos)
+                axios.post(url,datos)
+                .then(
+                    response => {
+                        alert(`Servicio Añadido `)
+                        cargarReservas()
+                        obtenerServicios(id)
+                    }
+                )
+                .catch(error => {
+                    console.error(error.response.data)
+                    alert(`Error:${error.response.data}`)
+                })
+            }
+        }
+    </script>
+</body>
+</html>

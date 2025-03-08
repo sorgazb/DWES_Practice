@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="axios/dist/axios.min.js"></script>
+    <title>Document</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            padding: 10px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            z-index: 10;
+        }
+
+        #nombreUs {
+            margin-right: 20px;
+        }
+
+        button {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 20px;
+        }
+
+        button:hover {
+            background-color: darkred;
+        }
+
+        body > main {
+            margin-top: 80px; /* Ajuste para que el contenido no se superponga al header fijo */
+            padding: 20px;
+        }
+
+        /* Estilos para la tabla */
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #444;
+        }
+
+        th {
+            background-color: #444;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #222;
+        }
+
+        tr:hover {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h3 id="nombreUs"></h3>
+        <button type="button" onclick="salir()">Salir</button>
+    </header>
+    <main>
+        <h2>Lista de Productos</h2>
+        <table name="tabla" id="tabla">
+        </table>
+        <h2>Lista de Pedidos</h2>
+        <table name="tabla2" id="tabla2">
+        </table>
+    </main>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if(token == null) {
+            window.location.href = 'login.html';
+        } else {
+            const nombreUs = localStorage.getItem('usuario');
+            document.getElementById('nombreUs').textContent = `${nombreUs}`
+
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            window.onload = cargarProductos()
+            window.onload = cargarPedidos()
+       }
+
+        function salir() {
+            const url = 'http://localhost/DWES-DAW/Laravel/Unidad_05/APITienda/public/api/logout';
+            axios.post(url)
+            .then(response => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('usuario');
+                window.location.href = 'login.html';
+            })
+            .catch(error => {
+                alert('Error: No se ha cerrado sesion');
+            });
+        }
+
+        function cargarProductos(){
+            const url = 'http://localhost/DWES-DAW/Laravel/Unidad_05/APITienda/public/api/productos'
+            axios.get(url)
+            .then(
+                response => {
+                    const productos = response.data
+                    const tabla = document.getElementById('tabla')
+                    tabla.innerHTML = '<tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Imagen</th><th>Acciones</th></tr>'
+                    productos.forEach(producto => {
+                        const fila = document.createElement('tr')
+                        fila.innerHTML = `<td>${producto.id}</td>
+                        <td>${producto.nombre}</td>
+                        <td>${producto.precio}</td>
+                        <td>${producto.stock}</td>
+                        <td><img src="http://localhost/DWES-DAW/Laravel/Unidad_04/Tienda/public/img/productos/${producto.imagen}" width="50"></td>
+                        <td><button type="button" onclick="comprar(${producto.id})">Comprar</button></td>`
+                        tabla.appendChild(fila)
+                    });
+                }
+            )
+            .catch(error => {
+                console.error(error.response.data)
+                alert(`Error:${error.response.data}`)
+            })
+        }
+
+        function comprar(id){
+            const url = `http://localhost/DWES-DAW/Laravel/Unidad_05/APITienda/public/api/pedidos`
+            const datos = {
+                producto: id,
+                cantidad: 1
+            }
+            axios.post(url,datos)
+            .then(response => {
+                alert('Producto comprado')
+                cargarProductos()
+                cargarPedidos()
+            })
+            .catch(error => {
+                console.error(error.response.data)
+                alert(`Error:${error.response.data}`)
+            })
+        }
+
+        function cargarPedidos(){
+            const url = 'http://localhost/DWES-DAW/Laravel/Unidad_05/APITienda/public/api/pedidos'
+            axios.get(url)
+            .then(
+                response => {
+                    const pedidos = response.data.data
+                    const tabla = document.getElementById('tabla2')
+                    tabla.innerHTML = '<tr><th>ID</th><th>Producto</th><th>Precio</th><th>Cantidad</th><th>Usuario</th><th>Imagen</th></tr>'
+                    pedidos.forEach(pedido => {
+                        const fila = document.createElement('tr')
+                        fila.innerHTML = `<td>${pedido.id}</td>
+                        <td>${pedido.producto}</td>
+                        <td>${pedido.precioU}</td>
+                        <td>${pedido.cantidad}</td>
+                        <td><img src="http://localhost/DWES-DAW/Laravel/Unidad_04/Tienda/public/img/productos/${pedido.imagen}" width="50"></td>`
+                        tabla.appendChild(fila)
+                    });
+                }
+            )
+            .catch(error => {
+                console.error(error.response.data.data)
+                alert(`Error:${error.response.data.data}`)
+            })
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="axios/dist/axios.min.js"></script>
+    <title>Mis Tareas</title>
+</head>
+<body>
+    <form action="">
+        <h2>Crear Tarea</h2>
+        <input type="date" name="fecha" id="fecha">
+        <input type="time" name="hora" id="hora">
+        <input type="text" name="desc" id="desc" placeholder="Introduce una descripcion">
+        <select name="prioridad" id="prioridad">
+            <option>Alta</option>
+            <option selected="selected">Media</option>
+            <option>Baja</option>
+        </select>
+        <button type="button" name="crear" onclick="crearTarea()">Crear</button>
+    </form>
+    <h2>Lista de Tareas</h2>
+    <table name="tabla" id="tabla" border="1">
+    </table>
+
+    <script>
+        function crearTarea(){
+            const url = 'http://localhost/DWES-DAW/Laravel/Unidad_05/APITareas/public/tareas'
+            if(document.getElementById('fecha').value == '' ||
+            document.getElementById('hora').value == '' ||
+            document.getElementById('desc').value == '' ||
+            document.getElementById('prioridad').value == '' ){
+                alert('ERROR: Campos del formulario vacios')
+            }else{
+                const datos = {
+                    fecha : document.getElementById('fecha').value,
+                    hora : document.getElementById('hora').value,
+                    descripcion : document.getElementById('desc').value,
+                    prioridad : document.getElementById('prioridad').value
+                }
+                axios.post(url,datos)
+                .then(response => {
+                    const respuesta = response.data
+                    alert(`Tarea con id ${respuesta.tarea.id} creada`)
+                    cargarTareas()
+                    document.getElementById('fecha').value = ''
+                    document.getElementById('hora').value = ''
+                    document.getElementById('desc').value = ''
+                    document.getElementById('prioridad').value = 'Media'
+                })
+                .catch(error => {
+                    console.error(error.response.data)
+                    alert(`Error:${error.response.data}`)
+                })
+            }
+        }
+
+        function cargarTareas(){
+            const url = 'http://localhost/DWES-DAW/Laravel/Unidad_05/APITareas/public/tareas'
+            axios.get(url)
+            .then(
+                response => {
+                    const tareas = response.data
+                    const tabla = document.getElementById('tabla')
+                    tabla.innerHTML = '<tr><th>ID</th><th>Fecha</th><th>Hora</th><th>Descripcion</th><th>Prioridad</th><th>Finalizada</th><th>Acciones</th></tr>'
+                    tareas.forEach(tarea=> {
+                        const fila = document.createElement('tr')
+                        fila.innerHTML = `<td>${tarea.id}</td>
+                        <td>${tarea.fecha}</td>
+                        <td>${tarea.hora}</td>
+                        <td>${tarea.descripcion}</td>
+                        <td>${tarea.prioridad}</td>
+                        <td>${tarea.finalizada}</td>
+                        <td>
+                            <button type="button" name="finalizar" onclick="finalizarTarea(${tarea.id})">Finalizar</button>
+                            <button type="button" name="borrar" onclick="borrarTarea(${tarea.id})">Borrar</button>
+                        </td>`
+                        tabla.appendChild(fila)
+                    });
+                }
+            )
+            .catch(error => {
+                console.error(error.response.data)
+                alert(`Error:${error.response.data}`)
+            })
+        }
+
+        function finalizarTarea (id){
+            const url = `http://localhost/DWES-DAW/Laravel/Unidad_05/APITareas/public/tareas/${id}`
+            datos = {
+                finalizada : true
+            }
+            axios.put(url,datos)
+            .then(response => {
+                alert(response.data.mensaje)
+                cargarTareas()
+            })
+            .catch(error => {
+                console.error(error.response.data)
+                alert(`Error:${error.response.data}`)
+            })
+        }
+
+        function borrarTarea (id){
+            const url = `http://localhost/DWES-DAW/Laravel/Unidad_05/APITareas/public/tareas/${id}`
+            if(confirm(`¿Estas seguro de eliminar la tarea con id ${id}?`)){
+                axios.delete(url)
+                .then(response => {
+                    alert('Tarea borrada')
+                    cargarTareas()
+                })
+                .catch(error => {
+                    console.error(error.response.data)
+                    alert(`Error:${error.response.data} Estado:${error.response.status}`)
+                })
+            }
+        }
+
+        window.onload = cargarTareas()
+    </script>
+</body>
+</html>
